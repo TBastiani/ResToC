@@ -12,7 +12,7 @@ Step 2: Use your build system to run `restoc.py` as follows: `python restoc.py r
 
 Step 3: Then it becomes a simple matter of including `generated_resources.h`, `generated_resources.c` and `compiled_resources.c` into your projects's source list.
 
-# Access the resources from C source code
+# Access the resources from C
 
 ```
 #include "generated_resources.h"
