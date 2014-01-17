@@ -45,7 +45,7 @@ resourceDesc = json.loads(jsonStr)
 
 # Generate *.c file
 # Open ouput file
-outputFile = open(sys.argv[2], "w")
+outputFile = open(sys.argv[2], "wb")
 
 # Write file header
 headerStr = "#include \"generated_resources.h\"\n"
@@ -54,7 +54,7 @@ outputFile.write(headerStr)
 # Write content
 resourceIndex = 0
 for key in resourceDesc:
-	data = open(resourceDesc[key], "r").read()
+	data = open(resourceDesc[key], "rb").read()
 	
 	# Write data
 	outputFile.write("static const uint8_t data_field_")
