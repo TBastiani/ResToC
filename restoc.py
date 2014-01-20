@@ -81,7 +81,7 @@ for key in resourceDesc:
 	resourceIndex = resourceIndex + 1
 
 # Write global array
-outputFile.write("extern const resource_t *__named_resources_table[] = {")
+outputFile.write("const resource_t *__named_resources_table[] = {")
 resourceIndex = 0
 for key in resourceDesc:
 	outputFile.write("(const resource_t *) (&resource_")
@@ -91,7 +91,7 @@ for key in resourceDesc:
 	resourceIndex = resourceIndex + 1
 
 outputFile.write("};\n")
-outputFile.write("extern const unsigned __named_resources_count = ")
+outputFile.write("const unsigned __named_resources_count = ")
 outputFile.write(str(resourceIndex))
 outputFile.write(";\n\n")
 
