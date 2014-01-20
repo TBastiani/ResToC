@@ -31,6 +31,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern "C" {
 #endif
 
+#ifndef RESTOC_NO_EXPORT
+#ifdef _WIN32
+#define RESTOC_EXPORT __declspec(dllexport)
+#else
+#define RESTOC_EXPORT
+#endif
+#endif
+
 typedef struct resource_t
 {
 	const char *name;
@@ -38,8 +46,12 @@ typedef struct resource_t
 	const uint8_t *data;
 } resource_t;
 
-const uint8_t *GetNamedResource(const char *name, uint64_t *length);
+RESTOC_EXPORT
+const uint8_t *
+GetNamedResource(const char *name, uint64_t *length);
 
 #ifdef __cplusplus
 };
+
+#undef RESTOC_EXPORT
 #endif
