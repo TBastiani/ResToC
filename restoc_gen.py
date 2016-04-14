@@ -63,7 +63,7 @@ for key in resourceDesc:
     # Write data
     outputFile.write(
         "static const uint8_t data_field_{}[{}] = {{".format(
-            resourceIndex, max(len(data), h.digest_size)))
+            resourceIndex, max(len(data) + 1, h.digest_size)))
 
     for i in range(0, len(sha1)):
         outputFile.write(hex(ord(sha1[i])))

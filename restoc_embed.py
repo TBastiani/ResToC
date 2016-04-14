@@ -90,6 +90,7 @@ for key in resourceDesc:
 
     for i in range(len(resourceData)):
         targetData[offset + i] = resourceData[i]
+    targetData[offset + len(resourceData)] = 0
 
     resourceIndex = resourceIndex + 1
 
