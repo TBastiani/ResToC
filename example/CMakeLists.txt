@@ -13,6 +13,7 @@ add_custom_command(
 	OUTPUT resources_gen.c
 	PRE_BUILD
 	COMMAND ../restoc_gen.py resources_config.json ${CMAKE_CURRENT_BINARY_DIR}/resources_gen.c
+	DEPENDS dummy.txt
 	COMMENT "Generating C source code for resource embedding"
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
