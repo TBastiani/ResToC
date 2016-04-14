@@ -46,7 +46,8 @@ jsonStr = open(sys.argv[1], "r").read()
 resourceDesc = json.loads(jsonStr)
 
 # Read target file
-targetData = open(sys.argv[2], "rb").read()
+targetFile = open(sys.argv[2], "rb+")
+targetData = targetFile.read()
 targetData = numpy.fromstring(targetData, dtype=numpy.uint8)
 
 # Embed one resource at a time
@@ -68,18 +69,14 @@ for key in resourceDesc:
 
         if found == len(sha1):
             occurences.append(off)
+            break
 
     if len(occurences) == 0:
         print("No marker for resource '{}' in file '{}'"
             .format(key, sys.argv[2]))
         sys.exit(-1)
 
-    if len(occurences) != 1:
-        print("Too many markers for resource '{}' in file '{}'"
-            .format(key, sys.argv[2]))
-        sys.exit(-1)
-
-    # Embed resource at marker
+    # Write resource at marker
     offset = occurences[0]
     resourceData = open(resourceDesc[key], "rb").read()
     resourceData = numpy.fromstring(resourceData, dtype=numpy.uint8)
@@ -88,16 +85,11 @@ for key in resourceDesc:
             .format(sys.argv[2], key))
         sys.exit(-1)
 
-    for i in range(len(resourceData)):
-        targetData[offset + i] = resourceData[i]
-    targetData[offset + len(resourceData)] = 0
+    targetFile.seek(offset)
+    targetFile.write(resourceData)
+    targetFile.write(numpy.uint8(0))
 
     resourceIndex = resourceIndex + 1
-
-# Write out data to target file
-f = open(sys.argv[2], "w")
-f.write(targetData)
-f.close()
 
 print("Successfully embedded resources")
 exit(0)
