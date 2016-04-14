@@ -1,6 +1,6 @@
 #!/usr/bin/env python27
 
-# Copyright (c) 2014, Thomas Bastiani
+# Copyright (c) 2014-2016, Thomas Bastiani
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,13 +27,12 @@
 
 import sys      # argv
 import json     # config file
-import os       # stat
 import hashlib  # sha1
 
 
 def printUsage():
     print("Usage:")
-    print("\t./bintoc.py <resource_config.json> <resources_gen.c>")
+    print("\t./restoc_gen.py <resource_config.json> <resources_gen.c>")
     exit(-1)
 
 # Validate arguments
@@ -41,8 +40,7 @@ if len(sys.argv) != 3:
     printUsage()
 
 # Read JSON
-with open(sys.argv[1], "r") as jsonFile:
-    jsonStr = jsonFile.read()
+jsonStr = open(sys.argv[1], "r").read()
 resourceDesc = json.loads(jsonStr)
 
 # Generate *.c file
@@ -57,7 +55,6 @@ outputFile.write(headerStr)
 resourceIndex = 0
 for key in resourceDesc:
     data = open(resourceDesc[key], "rb").read()
-    flen = os.stat(resourceDesc[key]).st_size
 
     h = hashlib.sha1()
     h.update(key)
@@ -66,7 +63,7 @@ for key in resourceDesc:
     # Write data
     outputFile.write(
         "static const uint8_t data_field_{}[{}] = {{".format(
-            resourceIndex, max(flen, h.digest_size)))
+            resourceIndex, max(len(data), h.digest_size)))
 
     for i in range(0, len(sha1)):
         outputFile.write(hex(ord(sha1[i])))
@@ -75,15 +72,10 @@ for key in resourceDesc:
     outputFile.write("};\n")
 
     # Write struct
-    outputFile.write("resource_t resource_")
-    outputFile.write(str(resourceIndex))
-    outputFile.write(" = {\"")
-    outputFile.write(key)
-    outputFile.write("\",")
-    outputFile.write(str(flen))
-    outputFile.write(",data_field_")
-    outputFile.write(str(resourceIndex))
-    outputFile.write(",};\n")
+    outputFile.write(
+            """resource_t resource_{} = """
+            """{{"{}",{},data_field_{},}};\n""".format(
+                resourceIndex, key, len(data), resourceIndex))
 
     resourceIndex = resourceIndex + 1
 
@@ -91,17 +83,12 @@ for key in resourceDesc:
 outputFile.write("const resource_t *__named_resources_table[] = {")
 resourceIndex = 0
 for key in resourceDesc:
-    outputFile.write("(const resource_t *) (&resource_")
-    outputFile.write(str(resourceIndex))
-    outputFile.write("),")
-
+    outputFile.write(
+            "(const resource_t *) (&resource_{}),".format(resourceIndex))
     resourceIndex = resourceIndex + 1
 
-outputFile.write("};\n")
-outputFile.write("const unsigned __named_resources_count = ")
-outputFile.write(str(resourceIndex))
-outputFile.write(";\n\n")
-
+outputFile.write("}};\nconst unsigned __named_resources_count = {};\n\n"
+        .format(resourceIndex))
 outputFile.close()
 
 print("Successfully generated c source file")
