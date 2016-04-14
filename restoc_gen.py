@@ -55,16 +55,21 @@ outputFile.write(headerStr)
 resourceIndex = 0
 for key in resourceDesc:
 	data = open(resourceDesc[key], "rb").read()
-	
+        flen = os.stat(resourceDesc[key]).st_size
+
+        h = hashlib.sha1()
+        h.update(key)
+        sha1 = h.digest()
+
 	# Write data
-	outputFile.write("static const uint8_t data_field_")
-	outputFile.write(str(resourceIndex))
-	outputFile.write("[] = {")
-	
-	for index in range(0, len(data)):
-		outputFile.write(hex(ord(data[index])))
+        outputFile.write(
+                    "static const uint8_t data_field_{}[{}] = {{".format(
+                    resourceIndex, max(flen, h.digest_size)))
+
+	for i in range(0, len(sha1)):
+		outputFile.write(hex(ord(sha1[i])))
 		outputFile.write(",")
-	
+
 	outputFile.write("};\n")
 
 	# Write struct
@@ -73,7 +78,7 @@ for key in resourceDesc:
 	outputFile.write(" = {\"")
 	outputFile.write(key)
 	outputFile.write("\",")
-	outputFile.write(str(os.stat(resourceDesc[key]).st_size))
+	outputFile.write(str(flen))
 	outputFile.write(",data_field_")
 	outputFile.write(str(resourceIndex))
 	outputFile.write(",};\n")
