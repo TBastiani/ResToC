@@ -1,4 +1,4 @@
-#!/usr/bin/env python27
+#!/usr/bin/env python2
 
 # Copyright (c) 2016, Thomas Bastiani
 # All rights reserved.
