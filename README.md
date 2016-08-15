@@ -16,7 +16,7 @@ Step 4: Use your build system to run `restoc_embed.py` as follows: `python resto
 
 # Access the resources from C
 
-```
+```C
 #include "generated_resources.h"
 
 int main(int argc, char **argv)
