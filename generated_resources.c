@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2014, Thomas Bastiani
+Copyright (c) 2014-2016, Thomas Bastiani
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -25,39 +25,70 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdint.h>
-#include "generated_resources.h"
+#define _GNU_SOURCE
+#include <dlfcn.h>
 #include <stddef.h>
 #include <string.h>
+
+#include "generated_resources.h"
+
+#define PREFIX "restoc_resource_"
+#define SUFFIX "_length"
+#define PREFIX_LEN 16
+#define SUFFIX_LEN 7
+#define MAX_LEN 256
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern const resource_t *__named_resources_table[];
-extern const unsigned __named_resources_count;
-
 const uint8_t *GetNamedResource(const char *name, uint64_t *length)
 {
-	unsigned resourceIndex = 0;
-	const resource_t *result = NULL;
-	while (resourceIndex < __named_resources_count)
-	{
-		if (strcmp(__named_resources_table[resourceIndex]->name, name) == 0)
-		{
-			result = __named_resources_table[resourceIndex];
-			break;
-		}
+	/* Check arguments */
+	if (name == NULL)
+		return NULL;
+	if (length == NULL)
+		return NULL;
 
-		resourceIndex++;
+	/* Open current executable */
+	void *handle = dlopen(NULL, RTLD_LAZY);
+	if (handle == NULL)
+		return NULL;
+
+	/* Resolve resource symbol */
+	size_t nameLength = strnlen(name, MAX_LEN);
+	char symbol[PREFIX_LEN + SUFFIX_LEN + MAX_LEN + 1];
+	size_t offset = 0;
+
+	memcpy(symbol + offset, PREFIX, PREFIX_LEN);
+	offset += PREFIX_LEN;
+	memcpy(symbol + offset, name, nameLength);
+	offset += nameLength;
+	symbol[offset] = '\0';
+
+	uint64_t *resourceLength;
+	const uint8_t *resource = (const uint8_t *) dlsym(handle, symbol);
+	if (resource == NULL)
+		goto end;
+
+	/* Resolve resource length symbol */
+	memcpy(symbol + offset, SUFFIX, SUFFIX_LEN);
+	offset += SUFFIX_LEN;
+	symbol[offset] = '\0';
+
+	resourceLength = (uint64_t *) dlsym(handle, symbol);
+	if (resourceLength == NULL)
+	{
+		resource = NULL;
+		goto end;
 	}
 
-	if (result == NULL)
-		return NULL;
-	
-	if (length != NULL)
-		*length = result->length;
-	return result->data;
+	/* Output length */
+	*length = *resourceLength;
+
+end:
+	dlclose(handle);
+	return resource;
 }
 
 #ifdef __cplusplus

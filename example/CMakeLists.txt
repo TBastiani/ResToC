@@ -4,7 +4,7 @@ project(ResToC)
 
 include_directories(..)
 
-set(CMAKE_C_FLAGS "-std=c99 -g3 -O0")
+set(CMAKE_C_FLAGS "-std=c99 -g3 -O0 -ldl -rdynamic")
 
 add_executable(example main.c ../generated_resources.c resources_gen.c)
 

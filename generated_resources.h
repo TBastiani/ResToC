@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2014, Thomas Bastiani
+Copyright (c) 2014-2016, Thomas Bastiani
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -32,19 +32,8 @@ extern "C" {
 #endif
 
 #ifndef RESTOC_NO_EXPORT
-#ifdef _WIN32
-#define RESTOC_EXPORT __declspec(dllexport)
-#else
 #define RESTOC_EXPORT
 #endif
-#endif
-
-typedef struct resource_t
-{
-	const char *name;
-	uint64_t length;
-	const uint8_t *data;
-} resource_t;
 
 RESTOC_EXPORT
 const uint8_t *

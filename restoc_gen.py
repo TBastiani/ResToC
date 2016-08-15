@@ -52,7 +52,6 @@ headerStr = "#include \"generated_resources.h\"\n"
 outputFile.write(headerStr)
 
 # Write content
-resourceIndex = 0
 for key in resourceDesc:
     data = open(resourceDesc[key], "rb").read()
 
@@ -62,8 +61,8 @@ for key in resourceDesc:
 
     # Write data
     outputFile.write(
-        "static const uint8_t data_field_{}[{}] = {{".format(
-            resourceIndex, max(len(data) + 1, h.digest_size)))
+        "const uint8_t restoc_resource_{}[{}] = {{".format(
+            key, max(len(data) + 1, h.digest_size)))
 
     for i in range(0, len(sha1)):
         outputFile.write(hex(ord(sha1[i])))
@@ -71,24 +70,10 @@ for key in resourceDesc:
 
     outputFile.write("};\n")
 
-    # Write struct
-    outputFile.write(
-            """resource_t resource_{} = """
-            """{{"{}",{},data_field_{},}};\n""".format(
-                resourceIndex, key, len(data), resourceIndex))
+    # Write length
+    outputFile.write("uint64_t restoc_resource_{}_length = {};".format(
+        key, len(data)))
 
-    resourceIndex = resourceIndex + 1
-
-# Write global array
-outputFile.write("const resource_t *__named_resources_table[] = {")
-resourceIndex = 0
-for key in resourceDesc:
-    outputFile.write(
-            "(const resource_t *) (&resource_{}),".format(resourceIndex))
-    resourceIndex = resourceIndex + 1
-
-outputFile.write("}};\nconst unsigned __named_resources_count = {};\n\n"
-        .format(resourceIndex))
 outputFile.close()
 
 print("Successfully generated c source file")

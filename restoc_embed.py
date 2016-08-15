@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 
-# Copyright (c) 2016, Thomas Bastiani
+# Copyright (c) 2014-2016, Thomas Bastiani
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without

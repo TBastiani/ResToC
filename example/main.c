@@ -8,11 +8,11 @@ int main()
 	const uint8_t *data = GetNamedResource("dummy", &len);
 	if (data == NULL)
 	{
-		printf("Named resource not found\n");
+		printf("Named resource not found");
 		return -1;
 	}
 
-	printf("Named resource: %s\n", data);
+	printf("Named resource: %s", data);
 
 	return 0;
 }
