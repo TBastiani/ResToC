@@ -47,8 +47,8 @@ resourceDesc = json.loads(jsonStr)
 
 # Read target file
 targetFile = open(sys.argv[2], "rb+")
-targetData = targetFile.read()
-targetData = numpy.fromstring(targetData, dtype=numpy.uint8)
+# We don't care much about the encoding but string.find() is fast
+targetData = targetFile.read().decode('latin-1')
 
 # Embed one resource at a time
 resourceIndex = 0
@@ -56,20 +56,16 @@ for key in resourceDesc:
     # Compute the "marker" that we should be looking for
     h = hashlib.sha1()
     h.update(key)
-    sha1 = h.digest()
+    sha1 = h.digest().decode('latin-1')
 
     # Search for marker occurences
     occurences = []
-    for off in range(len(targetData)):
-        found = 0
-        for i in range(len(sha1)):
-            if ord(sha1[i]) != targetData[off + i]:
-                break
-            found = found + 1
-
-        if found == len(sha1):
-            occurences.append(off)
-            break
+    off = 0
+    while True:
+        off = targetData.find(sha1, off + 1)
+        if off == -1:
+            break;
+        occurences.append(off)
 
     if len(occurences) == 0:
         print("No marker for resource '{}' in file '{}'"
